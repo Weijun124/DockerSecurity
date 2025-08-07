@@ -1,0 +1,29 @@
+FROM node:24-bullseye
+
+# replace root user at bottom (use non-root user)
+USER root
+
+# Install only necessary packages with pinned versions, avoid extra packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    nmap \
+    netcat-openbsd \
+    iputils-ping \
+    stress \
+ && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+# Use COPY instead of ADD
+COPY . .
+RUN npm install express@4.16.0
+
+
+# create new user to replace the root user
+RUN useradd -m appuser && chown -R appuser /app
+USER appuser
+
+# ❌ Expose unnecessary ports
+EXPOSE 22
+EXPOSE 3000
+
+CMD ["node", "server.js"]

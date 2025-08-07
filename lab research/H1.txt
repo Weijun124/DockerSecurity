@@ -1,0 +1,28 @@
+FROM node:24-bullseye
+
+# ❌ Run as root (insecure)
+USER root
+
+# ❌ Install many packages (more CVEs)
+RUN apt-get update && apt-get install -y \
+    curl \
+    nmap \
+    netcat-openbsd \
+    iputils-ping \
+    dsniff \
+    apache2 \
+    stress
+
+WORKDIR /app
+# ❌ using non recommaned words ('COP' should )
+ADD . /app
+
+# ❌ Install outdated vulnerable version of Express (will trigger CVEs)
+RUN npm install express@4.16.0
+
+# ❌ Expose unnecessary ports
+EXPOSE 22
+EXPOSE 3000
+
+CMD ["node", "server.js"]
+
